@@ -1,1 +1,1 @@
-docker-compose up --scale api-server=2 -d
+docker compose up --scale api-server=2 -d
