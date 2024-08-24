@@ -538,8 +538,8 @@ class HoldersTool {
             {text: 'Location', value: 'location'},
         ];
         const actions = [
-            {name: 'Remove', params: { action: 'remove' } },
-            {name: 'Add', params: { action: 'add' } },
+            {name: 'Remove', params: {action: 'remove'}},
+            {name: 'Add', params: {action: 'add'}},
         ];
         return {
             actions,
@@ -549,7 +549,7 @@ class HoldersTool {
     }
 
     async action(params) {
-        const { action } = params;
+        const {action} = params;
         switch (action) {
             case 'remove': {
                 const items = await userSelect(getHolders().map(({userId}) => userId));
@@ -557,7 +557,7 @@ class HoldersTool {
                     title: 'Remove a holder',
                     params,
                     elements: [
-                        { value: 'userId', text: 'User', type: 'select', items }
+                        {value: 'userId', text: 'User', type: 'select', items}
                     ]
                 };
             }
@@ -572,6 +572,8 @@ class HoldersTool {
                     ]
                 };
             }
+            default:
+                break;
         }
     }
 
@@ -579,7 +581,7 @@ class HoldersTool {
         const {params: {action}, submit} = body;
         switch (action) {
             case 'add': {
-                const { user, location } = submit;
+                const {user, location} = submit;
                 if (!user) {
                     throw 'Missing user';
                 }
@@ -593,7 +595,7 @@ class HoldersTool {
                 return this.table();
             }
             case 'remove': {
-                const { submit: { userId } } = body;
+                const {submit: {userId}} = body;
                 if (!userId) {
                     throw 'Missing user';
                 }
@@ -603,6 +605,8 @@ class HoldersTool {
                 deleteHolder(userId);
                 return this.table();
             }
+            default:
+                break;
         }
     }
 }
