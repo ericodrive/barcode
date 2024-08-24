@@ -153,6 +153,10 @@ function cacheUser(user) {
     return user;
 }
 
+function uncacheUser(userId) {
+    USER_CACHE.delete(userId);
+}
+
 // Get a user object from the cache given a user ID. Returns a user object
 // or undefined if the user is not found or the request fails. If the user
 // is not allowed to use the system, it returns undefined unless
@@ -593,6 +597,7 @@ module.exports = {
     makeUser,
     lookupUser,
     lookupUserWithFallback,
+    uncacheUser,
     startConversation,
     sendAlert,
     findUsersWithPrefix,

@@ -9,7 +9,7 @@ const {db: dbtcDatabase} = require('./dbtc-database');
 const {database: equipmentDatabase, database,
     getQueue, getItemForUser, insertIntoQueue, removeFromQueue, transferItem, getAllBans, getBan, addBan, deleteBan,
     getHolders, getHolder, addHolder, deleteHolder} = require('./equipment-database');
-const {lookupUser} = require('./xenforo');
+const {lookupUser, uncacheUser} = require('./xenforo');
 const {age, dateFromIsoString, nowAsIsoString, addDays} = require('./dates');
 const {getListOfPlaceNames} = require('./places/places');
 const scheduler = require('./scheduler');
@@ -592,6 +592,7 @@ class HoldersTool {
                     throw 'Already exists';
                 }
                 addHolder(user.id, location);
+                uncacheUser(user.id);
                 return this.table();
             }
             case 'remove': {
@@ -603,6 +604,7 @@ class HoldersTool {
                     throw 'Not a holder';
                 }
                 deleteHolder(userId);
+                uncacheUser(userId);
                 return this.table();
             }
             default:
