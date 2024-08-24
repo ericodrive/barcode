@@ -445,6 +445,14 @@ function getHolder(userId) {
     return db.first(SELECT_HOLDER, {userId});
 }
 
+function addHolder(userId, location) {
+    db.run('INSERT INTO holders VALUES ($userId, $location)', {userId, location});
+}
+
+function deleteHolder(userId) {
+    db.run('DELETE FROM holders WHERE userId = $userId', {userId});
+}
+
 //-----------------------------------------------------------------------------
 
 module.exports = {
@@ -470,5 +478,7 @@ module.exports = {
     updateDone,
     getHistoryForItem,
     getHolders,
-    getHolder
+    getHolder,
+    addHolder,
+    deleteHolder,
 };

@@ -7,10 +7,11 @@ const _ = require('lodash');
 
 const {db: dbtcDatabase} = require('./dbtc-database');
 const {database: equipmentDatabase, database,
-    getQueue, getItemForUser, insertIntoQueue, removeFromQueue, transferItem, getAllBans, getBan, addBan, deleteBan} = require('./equipment-database');
+    getQueue, getItemForUser, insertIntoQueue, removeFromQueue, transferItem, getAllBans, getBan, addBan, deleteBan,
+    getHolders, getHolder, addHolder, deleteHolder} = require('./equipment-database');
 const {lookupUser} = require('./xenforo');
 const {age, dateFromIsoString, nowAsIsoString, addDays} = require('./dates');
-
+const {getListOfPlaceNames} = require('./places/places');
 const scheduler = require('./scheduler');
 
 const DATABASES = {
@@ -522,9 +523,94 @@ class BanTool {
     }
 }
 
+class HoldersTool {
+    select() {}
+
+    async table() {
+        const items = getHolders();
+        for (const row of items) {
+            row.key = row.userId;
+            const user = await lookupUser(row.userId, true);
+            row.userName = user.name;
+        }
+        const headers = [
+            {text: 'User', value: 'userName'},
+            {text: 'Location', value: 'location'},
+        ];
+        const actions = [
+            {name: 'Remove', params: { action: 'remove' } },
+            {name: 'Add', params: { action: 'add' } },
+        ];
+        return {
+            actions,
+            headers,
+            items
+        };
+    }
+
+    async action(params) {
+        const { action } = params;
+        switch (action) {
+            case 'remove': {
+                const items = await userSelect(getHolders().map(({userId}) => userId));
+                return {
+                    title: 'Remove a holder',
+                    params,
+                    elements: [
+                        { value: 'userId', text: 'User', type: 'select', items }
+                    ]
+                };
+            }
+            case 'add': {
+                const locations = getListOfPlaceNames();
+                return {
+                    title: 'Add a holder',
+                    params,
+                    elements: [
+                        {value: 'user', text: 'User', type: 'userid'},
+                        {value: 'location', text: 'Location', type: 'select', items: locations},
+                    ]
+                };
+            }
+        }
+    }
+
+    async dialog(caller, body) {
+        const {params: {action}, submit} = body;
+        switch (action) {
+            case 'add': {
+                const { user, location } = submit;
+                if (!user) {
+                    throw 'Missing user';
+                }
+                if (!location) {
+                    throw 'Missing location';
+                }
+                if (getHolder(user.id)) {
+                    throw 'Already exists';
+                }
+                addHolder(user.id, location);
+                return this.table();
+            }
+            case 'remove': {
+                const { submit: { userId } } = body;
+                if (!userId) {
+                    throw 'Missing user';
+                }
+                if (!getHolder(userId)) {
+                    throw 'Not a holder';
+                }
+                deleteHolder(userId);
+                return this.table();
+            }
+        }
+    }
+}
+
 const TOOLS = {
     equipment: new EquipmentTool(),
     bans: new BanTool(),
+    holders: new HoldersTool(),
 };
 
 router.get('/tools', (req, res) => {
