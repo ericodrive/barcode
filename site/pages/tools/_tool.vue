@@ -79,6 +79,19 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+    <v-form v-if="tool === 'addEquipment'" @submit.prevent="submitForm">
+      <v-text-field v-model="form.name" label="Name" required />
+      <v-text-field v-model="form.shortName" label="Short Name" required />
+      <v-text-field v-model="form.picture" label="Picture URL" required />
+      <v-text-field v-model="form.rules" label="Rules URL" required />
+      <v-text-field v-model="form.instructions" label="Instructions URL" required />
+      <v-text-field v-model="form.quantity" label="Quantity" type="number" required />
+      <v-text-field v-model="form.maxDays" label="Max Days" type="number" required />
+      <v-text-field v-model="form.supportingMemberDays" label="Supporting Member Days" type="number" required />
+      <v-text-field v-model="form.alertStartDay" label="Alert Start Day" type="number" required />
+      <v-text-field v-model="form.threadId" label="Thread ID" type="number" required />
+      <v-btn type="submit" color="primary">Add Equipment</v-btn>
+    </v-form>
   </v-container>
 </template>
 <script>
@@ -101,7 +114,20 @@ export default {
       selected: undefined,
       // The stuff from the dialog
       submit: undefined,
-      error: undefined
+      error: undefined,
+      // Form data for adding new equipment
+      form: {
+        name: '',
+        shortName: '',
+        picture: '',
+        rules: '',
+        instructions: '',
+        quantity: 0,
+        maxDays: 0,
+        supportingMemberDays: 0,
+        alertStartDay: 0,
+        threadId: 0
+      }
     }
   },
   watch: {
@@ -140,16 +166,19 @@ export default {
         this.error = undefined
         this.submit = undefined
       }
+    },
+    async submitForm () {
+      const url = '/api/admin/add-equipment'
+      const { error } = await this.$axios.$post(url, this.form)
+      if (error) {
+        this.error = error
+        setTimeout(() => {
+          this.error = undefined
+        }, 4000)
+      } else {
+        this.$router.push('/tools/addEquipment')
+      }
     }
-
-    // async submit () {
-    //   this.submitting = true
-    //   const { itemId } = this.$route.params
-    //   const url = `/api/equipment/queue/${itemId}`
-    //   await this.$axios.$delete(url)
-    //   // After we are done, go back to the queue
-    //   this.$router.replace(`/equipment/queue/${itemId}`)
-    // }
   }
 }
 </script>

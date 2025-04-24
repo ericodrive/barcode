@@ -455,6 +455,39 @@ function deleteHolder(userId) {
 
 //-----------------------------------------------------------------------------
 
+const INSERT_NEW_EQUIPMENT = `
+    INSERT INTO items (
+        name,
+        shortName,
+        picture,
+        rules,
+        instructions,
+        quantity,
+        maxDays,
+        supportingMemberDays,
+        alertStartDay,
+        threadId
+    )
+    VALUES (
+        $name,
+        $shortName,
+        $picture,
+        $rules,
+        $instructions,
+        $quantity,
+        $maxDays,
+        $supportingMemberDays,
+        $alertStartDay,
+        $threadId
+    )
+`;
+
+function addNewEquipment(values) {
+    db.run(INSERT_NEW_EQUIPMENT, values);
+}
+
+//-----------------------------------------------------------------------------
+
 module.exports = {
     database: db,
     getAllItems,
@@ -481,4 +514,5 @@ module.exports = {
     getHolder,
     addHolder,
     deleteHolder,
+    addNewEquipment
 };
