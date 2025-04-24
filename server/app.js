@@ -257,6 +257,7 @@ app.use('/equipment', equipmentRouter, or404);
 app.use('/user', userRouter, or404);
 app.use('/admin', adminRouter, or404);
 app.use('/tank', tankRouter, or404);
+app.use('/admin/add-equipment', adminRouter, or404);
 
 //-----------------------------------------------------------------------------
 // Error handler

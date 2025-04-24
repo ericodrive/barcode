@@ -1,4 +1,3 @@
-
 const assert = require('assert');
 
 const express = require('express');
@@ -8,7 +7,7 @@ const _ = require('lodash');
 const {db: dbtcDatabase} = require('./dbtc-database');
 const {database: equipmentDatabase, database,
     getQueue, getItemForUser, insertIntoQueue, removeFromQueue, transferItem, getAllBans, getBan, addBan, deleteBan,
-    getHolders, getHolder, addHolder, deleteHolder} = require('./equipment-database');
+    getHolders, getHolder, addHolder, deleteHolder, addNewEquipment} = require('./equipment-database');
 const {lookupUser, uncacheUser} = require('./xenforo');
 const {age, dateFromIsoString, nowAsIsoString, addDays} = require('./dates');
 const {getListOfPlaceNames} = require('./places/places');
@@ -613,10 +612,48 @@ class HoldersTool {
     }
 }
 
+class AddEquipmentTool {
+    select() {}
+
+    async table() {
+        const items = database.all(
+            'SELECT itemId AS value, name AS text FROM items ORDER BY name'
+            , {});
+        const name = 'Item';
+        return {name, items};
+    }
+
+    async action(params) {
+        return {
+            title: 'Add New Equipment',
+            params,
+            elements: [
+                {value: 'name', text: 'Name', type: 'text'},
+                {value: 'shortName', text: 'Short Name', type: 'text'},
+                {value: 'picture', text: 'Picture URL', type: 'text'},
+                {value: 'rules', text: 'Rules URL', type: 'text'},
+                {value: 'instructions', text: 'Instructions URL', type: 'text'},
+                {value: 'quantity', text: 'Quantity', type: 'number'},
+                {value: 'maxDays', text: 'Max Days', type: 'number'},
+                {value: 'supportingMemberDays', text: 'Supporting Member Days', type: 'number'},
+                {value: 'alertStartDay', text: 'Alert Start Day', type: 'number'},
+                {value: 'threadId', text: 'Thread ID', type: 'number'}
+            ]
+        };
+    }
+
+    async dialog(caller, body) {
+        const {submit} = body;
+        addNewEquipment(submit);
+        return this.table();
+    }
+}
+
 const TOOLS = {
     equipment: new EquipmentTool(),
     bans: new BanTool(),
     holders: new HoldersTool(),
+    addEquipment: new AddEquipmentTool()
 };
 
 router.get('/tools', (req, res) => {
